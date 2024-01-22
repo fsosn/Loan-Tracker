@@ -1,0 +1,31 @@
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:key-store.p12
+    key-password: ${KEY_PASSWORD}
+    key-store-password: ${KEY_PASSWORD}
+    key-store-type: pkcs12
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/loan-tracker
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PSWD}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+      format_sql: true
+
+api:
+  auth:
+    base: /api/auth
+    authenticate: /authenticate
+    register: /register
+    xsrf: /xsrf-token
+
+host:
+  frontend: http://localhost:3000
