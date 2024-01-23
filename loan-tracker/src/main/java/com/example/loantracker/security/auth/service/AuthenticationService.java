@@ -1,5 +1,6 @@
 package com.example.loantracker.security.auth.service;
 
+import com.example.loantracker.loansummary.service.LoanSummaryService;
 import com.example.loantracker.security.auth.response.AuthenticationResponse;
 import com.example.loantracker.security.auth.request.AuthenticationRequest;
 import com.example.loantracker.security.auth.request.RegisterRequest;
@@ -15,6 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -23,6 +26,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final LoanSummaryService loanSummaryService;
 
     public RegisterResponse register(RegisterRequest request) {
         try {
@@ -37,7 +41,9 @@ public class AuthenticationService {
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.USER)
                     .build();
-            userRepository.save(user);
+            User savedUser = userRepository.save(user);
+
+            loanSummaryService.createSummary(savedUser.getId(), savedUser.getEmail(), BigDecimal.ZERO);
 
             return RegisterResponse.builder()
                     .message("Successfully registered account with email: " + request.getEmail())
