@@ -1,35 +1,36 @@
 import Page from "./template/Page.js";
 import {useEffect, useState} from "react";
-import Cookies from 'js-cookie';
 import "../styles.css";
 import "./UsersPage.css"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faRotateRight} from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 
 const UsersPage = () => {
     const [loanSummary, setLoanSummary] = useState([]);
 
-    const getSummary = () => {
-        const xsrfToken = Cookies.get('XSRF_TOKEN');
-        const authToken = Cookies.get('JWT_TOKEN');
+    const getSummary = async () => {
+        try {
+            const headers = {
+                'Content-Type': 'application/json',
+            };
 
-        const headers = {
-            'Content-Type': 'application/json',
-            'X-XSRF-TOKEN': xsrfToken,
-            'Authorization': `Bearer ${authToken}`
-        };
+            const response = await axios.get('https://127.0.0.1:8443/api/loans/get/summary', {
+                headers: headers,
+            });
 
-        fetch("https://127.0.0.1:8443/api/loans/get/summary", {
-            method: 'GET',
-            headers: headers,
-        })
-            .then((response) => response.json())
-            .then((data) => setLoanSummary(data))
-            .catch((error) => console.error("Error fetching summary:", error));
+            if (response.status === 200) {
+                setLoanSummary(response.data);
+            } else {
+                console.error('Error fetching summary:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching summary:', error);
+        }
     };
 
     useEffect(() => {
-        getSummary()
+        getSummary();
     }, []);
 
     return (

@@ -27,6 +27,8 @@ function App() {
                     API_ENDPOINTS.XSRF, {withCredentials: true}
                 );
                 const xsrfToken = response.headers['x-xsrf-token'];
+                console.log(xsrfToken)
+                axios.defaults.headers.common['X-XSRF-Token'] = xsrfToken;
                 Cookies.set('XSRF_TOKEN', xsrfToken, {expires: 3600});
             } catch (error) {
                 console.error('Failed to fetch XSRF token:', error);

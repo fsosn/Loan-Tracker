@@ -1,15 +1,13 @@
 import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import axios from 'axios';  // Make sure to import axios
+import axios from 'axios';
 import validate from '../utils/validate';
-import Cookies from "js-cookie";
 
 const ChangePasswordForm = () => {
     const navigate = useNavigate();
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
-    const authToken = Cookies.get('JWT_TOKEN');
 
     const handleOldPasswordChange = (e) => {
         setOldPassword(e.target.value);
@@ -38,7 +36,6 @@ const ChangePasswordForm = () => {
 
         axios.post("https://127.0.0.1:8443/api/auth/change-password", changePasswordRequest, {
             headers: {
-                Authorization: `Bearer ${authToken}`,
                 'Content-Type': 'application/json',
             },
         })

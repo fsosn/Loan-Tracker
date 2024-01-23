@@ -1,7 +1,7 @@
 import {useState, useEffect, useContext} from 'react';
 import { useNavigate } from 'react-router-dom';
-import Cookies from "js-cookie";
 import {AuthContext} from "../../auth/AuthContext.js";
+import axios from "axios";
 
 const LoanAdd = () => {
     const navigate = useNavigate();
@@ -13,8 +13,6 @@ const LoanAdd = () => {
         borrowerEmail: ''
     });
     const [users, setUsers] = useState([]);
-    const xsrfToken = Cookies.get('XSRF_TOKEN');
-    const authToken = Cookies.get('JWT_TOKEN');
     const auth = useContext(AuthContext);
     const user = auth.user;
 
@@ -23,30 +21,26 @@ const LoanAdd = () => {
             try {
                 const headers = {
                     'Content-Type': 'application/json',
-                    'X-XSRF-TOKEN': xsrfToken,
-                    'Authorization': `Bearer ${authToken}`
                 };
 
-                const response = await fetch("https://127.0.0.1:8443/api/users/get/all", {
-                    method: 'GET',
+                const response = await axios.get('https://127.0.0.1:8443/api/users/get/all', {
                     headers: headers,
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const filteredUsers = data.filter((email) => email !== user)
+                if (response.status === 200) {
+                    const data = response.data;
+                    const filteredUsers = data.filter((email) => email !== user);
                     setUsers(filteredUsers);
                 } else {
-                    console.error("Error fetching users:", response.statusText);
+                    console.error('Error fetching users:', response.statusText);
                 }
             } catch (error) {
-                console.error("Error fetching users:", error);
+                console.error('Error fetching users:', error);
             }
         };
 
         getUsers();
-
-    }, [authToken, xsrfToken]);
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -78,9 +72,7 @@ const LoanAdd = () => {
 
         try {
             const headers = {
-                'Authorization': `Bearer ${authToken}`,
                 'Content-Type': 'application/json',
-                'X-XSRF-TOKEN': xsrfToken,
             };
 
             const loanRequestDto = {
@@ -90,14 +82,12 @@ const LoanAdd = () => {
                 dueDate: loan.dueDate,
             };
 
-            const response = await fetch("https://127.0.0.1:8443/api/loans/create", {
-                method: 'POST',
+            const response = await axios.post('https://127.0.0.1:8443/api/loans/create', loanRequestDto, {
                 headers: headers,
-                credentials: 'include',
-                body: JSON.stringify(loanRequestDto),
+                withCredentials: true,
             });
 
-            if (response.ok) {
+            if (response.status === 200) {
                 console.log('Loan added successfully');
                 navigate('/');
             } else {
