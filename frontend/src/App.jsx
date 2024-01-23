@@ -1,8 +1,8 @@
-import {Route, Routes, Navigate} from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
 import './styles.css'
 import {RequireAuth} from "./auth/RequireAuth.js";
-import LoginForm from "./components/login/LoginForm.js";
-import RegisterForm from "./components/register/RegisterForm.js";
+import LoginForm from "./components/auth/login/LoginForm.js";
+import RegisterForm from "./components/auth/register/RegisterForm.js";
 import {useEffect} from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -25,7 +25,6 @@ function App() {
                     API_ENDPOINTS.XSRF, {withCredentials: true}
                 );
                 const xsrfToken = response.headers['x-xsrf-token'];
-                console.log('XSRF Token:', xsrfToken);
                 Cookies.set('XSRF_TOKEN', xsrfToken, {expires: 3600});
             } catch (error) {
                 console.error('Failed to fetch XSRF token:', error);

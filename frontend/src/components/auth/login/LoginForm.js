@@ -1,7 +1,8 @@
 import './LoginForm.css';
 import {useContext} from "react";
 import {Link, useLocation, useNavigate} from "react-router-dom";
-import {AuthContext} from "../../auth/AuthContext.js";
+import {AuthContext} from "../../../auth/AuthContext.js";
+import validate from "../utils/validate.js"
 
 
 const LoginForm = () => {
@@ -15,12 +16,14 @@ const LoginForm = () => {
         event.preventDefault();
 
         const formData = new FormData(event.currentTarget);
-        const username = formData.get("username");
+        const username = formData.get("email");
         const password = formData.get("password");
 
-        auth.signIn(username, password, () => {
-            navigate(from, {replace: true});
-        });
+        if (validate(password)) {
+            auth.signIn(username, password, () => {
+                navigate(from, {replace: true});
+            });
+        }
     }
 
     return (
@@ -34,14 +37,14 @@ const LoginForm = () => {
                         <div className="card-body">
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
-                                    <label htmlFor="username" className="form-label">
+                                    <label htmlFor="email" className="form-label">
                                         E-mail:
                                     </label>
                                     <input
-                                        name="username"
-                                        type="text"
+                                        name="email"
+                                        type="email"
                                         className="form-control"
-                                        id="username"
+                                        id="email"
                                     />
                                 </div>
                                 <div className="mb-3">

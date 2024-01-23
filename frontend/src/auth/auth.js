@@ -17,9 +17,7 @@ const auth = {
                     password
                 }
             );
-            console.log("Logging in")
             const token = response.data.token;
-            console.log("Token:" +  response.data.token)
             Cookies.set('JWT_TOKEN', token, {expires: 3600});
             auth.isAuthenticated = true;
             callback();

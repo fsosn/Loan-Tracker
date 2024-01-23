@@ -1,9 +1,9 @@
 package com.example.loantracker.security.auth.service;
 
 import com.example.loantracker.loansummary.service.LoanSummaryService;
-import com.example.loantracker.security.auth.response.AuthenticationResponse;
 import com.example.loantracker.security.auth.request.AuthenticationRequest;
 import com.example.loantracker.security.auth.request.RegisterRequest;
+import com.example.loantracker.security.auth.response.AuthenticationResponse;
 import com.example.loantracker.security.auth.response.RegisterResponse;
 import com.example.loantracker.security.jwt.JwtService;
 import com.example.loantracker.user.exception.UserAlreadyRegisteredException;
@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +29,27 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final LoanSummaryService loanSummaryService;
 
+    private static final String PASSWORD_PATTERN =
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+])[A-Za-z\\d!@#$%^&*()_+]{8,}$";
+    private static final Pattern PASSWORD_REGEX = Pattern.compile(PASSWORD_PATTERN);
+
+    private boolean validatePassword(String password) {
+        return PASSWORD_REGEX.matcher(password).matches();
+    }
+
     public RegisterResponse register(RegisterRequest request) {
         try {
             if (userRepository.findByEmail(request.getEmail()).isPresent()) {
                 throw new UserAlreadyRegisteredException(request.getEmail());
+            }
+
+            if (!validatePassword(request.getPassword())) {
+                return RegisterResponse.builder()
+                        .message("Password must have 8 letters and" +
+                                " contain at least one lowercase letter," +
+                                " one uppercase letter, one digit, and one special character")
+                        .success(false)
+                        .build();
             }
 
             var user = User.builder()
@@ -58,6 +76,16 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        if (!validatePassword(request.getPassword())) {
+            return AuthenticationResponse.builder()
+                    .token(null)
+                    .message("Password must have 8 letters and" +
+                            " contain at least one lowercase letter," +
+                            " one uppercase letter, one digit, and one special character")
+                    .success(false)
+                    .build();
+        }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -68,6 +96,8 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(token)
+                .message("Successfully authenticated user.")
+                .success(true)
                 .build();
     }
 }
