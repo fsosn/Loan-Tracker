@@ -1,0 +1,52 @@
+import {Route, Routes, Navigate} from "react-router-dom";
+import './styles.css'
+import {RequireAuth} from "./auth/RequireAuth.js";
+import LoginForm from "./components/login/LoginForm.js";
+import RegisterForm from "./components/register/RegisterForm.js";
+import {useEffect} from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+import {API_ENDPOINTS} from "./config/config.js";
+import LoansLentPage from "./pages/LoansLentPage.js";
+import LoansBorrowedPage from "./pages/LoansBorrowedPage.js";
+import UsersPage from "./pages/UsersPage.js";
+import LoanAdd from "./components/add-form/LoanAdd.js";
+import LoansRequestsPage from "./pages/LoansRequestsPage.js";
+
+function App() {
+
+    useEffect(() => {
+        const fetchXSRFToken = async () => {
+            try {
+                const response = await axios.get(
+                    API_ENDPOINTS.BASE_URL +
+                    API_ENDPOINTS.API +
+                    API_ENDPOINTS.AUTH +
+                    API_ENDPOINTS.XSRF, {withCredentials: true}
+                );
+                const xsrfToken = response.headers['x-xsrf-token'];
+                console.log('XSRF Token:', xsrfToken);
+                Cookies.set('XSRF_TOKEN', xsrfToken, {expires: 3600});
+            } catch (error) {
+                console.error('Failed to fetch XSRF token:', error);
+            }
+        };
+
+        fetchXSRFToken();
+    }, []);
+
+    return (
+        <Routes>
+            <Route index path='/' element={<RequireAuth><LoansLentPage/></RequireAuth>}/>
+            <Route path='/borrowed' element={<RequireAuth><LoansBorrowedPage/></RequireAuth>}/>
+            <Route path='/requests' element={<RequireAuth><LoansRequestsPage/></RequireAuth>}/>
+            <Route path='/loan/add' element={<RequireAuth><LoanAdd/></RequireAuth>}/>
+            <Route path='/users' element={<RequireAuth><UsersPage/></RequireAuth>}/>
+            <Route path='/login' element={<LoginForm/>}/>
+            <Route path='/register' element={<RegisterForm/>}/>
+        </Routes>
+
+    );
+}
+
+export default App

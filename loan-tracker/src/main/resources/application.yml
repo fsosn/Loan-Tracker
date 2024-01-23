@@ -26,6 +26,21 @@ api:
     authenticate: /authenticate
     register: /register
     xsrf: /xsrf-token
+  loans:
+    base: /api/loans
+    get:
+      all:
+        lent: /get/all/lent
+        borrowed: /get/all/borrowed
+        requests: /get/all/requests
+      summary: /get/summary
+    create: /create
+    confirm: /confirm
+  users:
+    base: /api/users
+    get:
+      all: /get/all
+#    update: /update
+#    delete: /delete
 
-host:
-  frontend: http://localhost:3000
+frontend: https://192.168.1.102:5173

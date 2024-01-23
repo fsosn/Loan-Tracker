@@ -1,0 +1,48 @@
+.sidebar {
+    background: #aa8ef5;
+    width: 320px;
+    color: #2d0c85;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    height: 75px;
+    margin-left: 20px;
+}
+
+.menu-item {
+    padding-left: 20px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background-color: #b8a1f7;
+}
+
+.company-name {
+    margin-left: 20px;
+    padding-top: 8px;
+}
+
+.menu-link {
+    margin-left: 20px;
+}
+
+.toggle-icon {
+    width: 24px;
+    cursor: pointer;
+}
+
+.menu-item-icon {
+    width: 24px;
+}
+
+.spacer-logout {
+    flex-grow: 1;
+}
