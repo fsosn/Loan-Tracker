@@ -1,7 +1,8 @@
 import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {API_ENDPOINTS} from "../../config/config.js";
+import {API_ENDPOINTS} from "../../../config/config.js";
 import Cookies from "js-cookie";
+import validate from "../utils/validate.js";
 
 const Register = () => {
     const navigate = useNavigate();
@@ -23,6 +24,8 @@ const Register = () => {
             setRepeatPasswordError('');
         }
 
+        if (!validate(password)) return
+
         const userData = {
             firstName,
             lastName,
@@ -30,11 +33,8 @@ const Register = () => {
             password,
         };
 
-        console.log(userData)
-
         try {
             const xsrfToken = Cookies.get('XSRF_TOKEN');
-            console.log(xsrfToken)
             const response = await fetch(
                 API_ENDPOINTS.BASE_URL +
                 API_ENDPOINTS.API +
