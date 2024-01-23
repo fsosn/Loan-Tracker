@@ -6,7 +6,7 @@ import "./UsersPage.css"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faRotateRight} from "@fortawesome/free-solid-svg-icons";
 
-function UsersPage() {
+const UsersPage = () => {
     const [loanSummary, setLoanSummary] = useState([]);
 
     const getSummary = () => {

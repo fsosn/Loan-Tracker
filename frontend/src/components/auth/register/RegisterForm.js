@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import {API_ENDPOINTS} from "../../../config/config.js";
 import Cookies from "js-cookie";
 import validate from "../utils/validate.js";
+import PasswordStrength from "../password-strength/PasswordStrength.js";
 
 const Register = () => {
     const navigate = useNavigate();
@@ -64,6 +65,15 @@ const Register = () => {
         } catch (error) {
             console.error('Error during registration:', error);
         }
+    };
+
+    const calculatePasswordEntropy = (password) => {
+        const characterSetSize = 95;
+        const passwordLength = password.length;
+
+        const entropy = Math.log2(Math.pow(characterSetSize, passwordLength));
+
+        return Math.round(entropy);
     };
 
     return (
@@ -129,6 +139,7 @@ const Register = () => {
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
                                 </div>
+                                <PasswordStrength entropy={calculatePasswordEntropy(password)}/>
                                 <div className="mb-3">
                                     <label htmlFor="repeatPassword" className="form-label">
                                         Confirm password:

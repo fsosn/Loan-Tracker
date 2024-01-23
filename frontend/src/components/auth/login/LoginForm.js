@@ -1,27 +1,33 @@
 import './LoginForm.css';
-import {useContext} from "react";
-import {Link, useLocation, useNavigate} from "react-router-dom";
-import {AuthContext} from "../../../auth/AuthContext.js";
-import validate from "../utils/validate.js"
-
+import { useState } from 'react';
+import { useContext } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../../auth/AuthContext.js';
+import validate from '../utils/validate.js';
 
 const LoginForm = () => {
     const navigate = useNavigate();
     const auth = useContext(AuthContext);
     const location = useLocation();
+    const [password, setPassword] = useState('');
 
-    let from = location.state?.from?.pathname || "/";
+    let from = location.state?.from?.pathname || '/';
+
+    const handlePasswordChange = (e) => {
+        const newPassword = e.target.value;
+        setPassword(newPassword);
+    };
 
     function handleSubmit(event) {
         event.preventDefault();
 
         const formData = new FormData(event.currentTarget);
-        const username = formData.get("email");
-        const password = formData.get("password");
+        const username = formData.get('email');
+        const password = formData.get('password');
 
         if (validate(password)) {
             auth.signIn(username, password, () => {
-                navigate(from, {replace: true});
+                navigate(from, { replace: true });
             });
         }
     }
@@ -56,11 +62,14 @@ const LoginForm = () => {
                                         type="password"
                                         className="form-control"
                                         id="password"
+                                        onChange={handlePasswordChange}
                                     />
                                 </div>
                                 <div className="text-center sign-button-container">
-                                    <button type="submit"
-                                            className="btn btn-block d-grid gap-2 col-6 mx-auto sign-button">
+                                    <button
+                                        type="submit"
+                                        className="btn btn-block d-grid gap-2 col-6 mx-auto sign-button"
+                                    >
                                         Sign in
                                     </button>
                                 </div>

@@ -25,6 +25,7 @@ api:
     base: /api/auth
     authenticate: /authenticate
     register: /register
+    change: /change-password
     xsrf: /xsrf-token
   loans:
     base: /api/loans

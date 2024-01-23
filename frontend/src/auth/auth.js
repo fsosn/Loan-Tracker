@@ -22,6 +22,7 @@ const auth = {
             auth.isAuthenticated = true;
             callback();
         } catch (e) {
+            alert("Authentication failed");
             console.error("Authentication failed: ", e);
         }
     },

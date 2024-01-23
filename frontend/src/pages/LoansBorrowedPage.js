@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faRotateRight} from "@fortawesome/free-solid-svg-icons";
 
-function LoansBorrowedPage() {
+const LoansBorrowedPage = () => {
     const [requests, setRequests] = useState([]);
     const xsrfToken = Cookies.get('XSRF_TOKEN');
     const authToken = Cookies.get('JWT_TOKEN');
@@ -24,7 +24,6 @@ function LoansBorrowedPage() {
             if (response.ok) {
                 const data = await response.json();
                 setRequests(data);
-                console.log(data)
             } else {
                 console.error("Error fetching loan requests:", response.statusText);
             }

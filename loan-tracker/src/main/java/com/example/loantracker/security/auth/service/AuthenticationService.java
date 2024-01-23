@@ -2,9 +2,12 @@ package com.example.loantracker.security.auth.service;
 
 import com.example.loantracker.loansummary.service.LoanSummaryService;
 import com.example.loantracker.security.auth.request.AuthenticationRequest;
+import com.example.loantracker.security.auth.request.ChangePasswordRequest;
 import com.example.loantracker.security.auth.request.RegisterRequest;
 import com.example.loantracker.security.auth.response.AuthenticationResponse;
+import com.example.loantracker.security.auth.response.ChangePasswordResponse;
 import com.example.loantracker.security.auth.response.RegisterResponse;
+import com.example.loantracker.security.auth.util.CustomPasswordEncoder;
 import com.example.loantracker.security.jwt.JwtService;
 import com.example.loantracker.user.exception.UserAlreadyRegisteredException;
 import com.example.loantracker.user.model.Role;
@@ -13,7 +16,8 @@ import com.example.loantracker.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,7 +28,7 @@ import java.util.regex.Pattern;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final CustomPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final LoanSummaryService loanSummaryService;
@@ -99,5 +103,53 @@ public class AuthenticationService {
                 .message("Successfully authenticated user.")
                 .success(true)
                 .build();
+    }
+
+    public ChangePasswordResponse changePassword(ChangePasswordRequest request) {
+        try {
+            String currentUserEmail = getCurrentUserEmail();
+            var user = userRepository.findByEmail(currentUserEmail).orElseThrow();
+
+            if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+                return ChangePasswordResponse.builder()
+                        .message("Old password is incorrect.")
+                        .success(false)
+                        .build();
+            }
+
+            if (!validatePassword(request.getNewPassword())) {
+                return ChangePasswordResponse.builder()
+                        .message("New password must have 8 letters and" +
+                                " contain at least one lowercase letter," +
+                                " one uppercase letter, one digit, and one special character")
+                        .success(false)
+                        .build();
+            }
+
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+
+            return ChangePasswordResponse.builder()
+                    .message("Password changed successfully.")
+                    .success(true)
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ChangePasswordResponse.builder()
+                    .message("Failed to change password. Please try again.")
+                    .success(false)
+                    .build();
+        }
+    }
+
+
+
+    private String getCurrentUserEmail() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return userDetails.getUsername();
     }
 }
