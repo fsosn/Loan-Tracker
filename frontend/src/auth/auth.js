@@ -17,6 +17,16 @@ const auth = {
                     password
                 }
             );
+            if(response.data.message === "Account is locked. Try again later."){
+                alert("Account is locked for 5 minutes. Try again later.");
+                window.location.reload()
+                return
+            } else if (!response.data.success){
+                alert("Incorrect credentials");
+                window.location.reload()
+                return
+            }
+
             const token = response.data.token;
             //Cookies.set('JWT_TOKEN', token, {expires: 3600});
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -25,11 +35,14 @@ const auth = {
         } catch (e) {
             alert("Authentication failed");
             console.error("Authentication failed: ", e);
+            window.location.reload()
         }
     },
     signOut: (callback) => {
-        Cookies.remove('JWT_TOKEN');
+        let token = null;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         auth.isAuthenticated = false;
+        window.location.reload()
         callback();
     }
 };

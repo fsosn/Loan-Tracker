@@ -44,4 +44,4 @@ api:
 #    update: /update
 #    delete: /delete
 
-frontend: https://192.168.1.102:5173
+frontend: https://192.168.1.100:5173

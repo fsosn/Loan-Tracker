@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,6 +29,8 @@ public class User implements UserDetails {
     private String lastName;
     @Enumerated(EnumType.STRING)
     private Role role;
+    private Integer failedLoginAttempts;
+    private LocalDateTime lastFailedLoginAttempt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -62,6 +65,16 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void incrementFailedLoginAttempts() {
+        this.failedLoginAttempts = this.failedLoginAttempts+1;
+        this.lastFailedLoginAttempt = LocalDateTime.now();
+    }
+
+    public void resetFailedLoginAttempts() {
+        this.failedLoginAttempts = 0;
+        this.lastFailedLoginAttempt = null;
     }
 
 }

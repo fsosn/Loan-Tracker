@@ -43,6 +43,7 @@ const ChangePasswordForm = () => {
                 alert(response.data.message);
                 if(!response.data.success) return
                 navigate('/account');
+                window.location.reload();
             })
             .catch(error => {
                 console.error('Error changing password:', error);

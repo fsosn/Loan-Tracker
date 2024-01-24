@@ -15,12 +15,14 @@ import com.example.loantracker.user.model.User;
 import com.example.loantracker.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
 @Service
@@ -62,6 +64,8 @@ public class AuthenticationService {
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.USER)
+                    .failedLoginAttempts(0)
+                    .lastFailedLoginAttempt(null)
                     .build();
             User savedUser = userRepository.save(user);
 
@@ -90,19 +94,43 @@ public class AuthenticationService {
                     .build();
         }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword())
-        );
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var token = jwtService.generateToken(user);
 
-        return AuthenticationResponse.builder()
-                .token(token)
-                .message("Successfully authenticated user.")
-                .success(true)
-                .build();
+        if (isAccountLocked(user)) {
+            return AuthenticationResponse.builder()
+                    .token(null)
+                    .message("Account is locked. Try again later.")
+                    .success(false)
+                    .build();
+        }
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword())
+            );
+
+            user.resetFailedLoginAttempts();
+            userRepository.save(user);
+
+            var token = jwtService.generateToken(user);
+
+            return AuthenticationResponse.builder()
+                    .token(token)
+                    .message("Successfully authenticated user.")
+                    .success(true)
+                    .build();
+        } catch (BadCredentialsException e) {
+            user.incrementFailedLoginAttempts();
+            userRepository.save(user);
+
+            return AuthenticationResponse.builder()
+                    .token(null)
+                    .message("Invalid credentials. Please try again.")
+                    .success(false)
+                    .build();
+        }
     }
 
     public ChangePasswordResponse changePassword(ChangePasswordRequest request) {
@@ -151,5 +179,10 @@ public class AuthenticationService {
                 .getPrincipal();
 
         return userDetails.getUsername();
+    }
+
+    private boolean isAccountLocked(User user) {
+        return user.getFailedLoginAttempts() >= 5 &&
+                user.getLastFailedLoginAttempt().plusMinutes(5).isAfter(LocalDateTime.now());
     }
 }
