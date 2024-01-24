@@ -1,35 +1,28 @@
 import {useState, useEffect} from 'react';
 import Page from "./template/Page.js";
 import "../styles.css";
-import Cookies from "js-cookie";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faRotateRight} from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 
-function LoansBorrowedPage() {
+const LoansBorrowedPage = () => {
     const [requests, setRequests] = useState([]);
-    const xsrfToken = Cookies.get('XSRF_TOKEN');
-    const authToken = Cookies.get('JWT_TOKEN');
 
     const fetchRequests = async () => {
         try {
-            const response = await fetch("https://127.0.0.1:8443/api/loans/get/all/borrowed", {
-                method: 'GET',
+            const response = await axios.get('https://127.0.0.1:8443/api/loans/get/all/borrowed', {
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-XSRF-TOKEN': xsrfToken,
-                    'Authorization': `Bearer ${authToken}`
                 },
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                setRequests(data);
-                console.log(data)
+            if (response.status === 200) {
+                setRequests(response.data);
             } else {
-                console.error("Error fetching loan requests:", response.statusText);
+                console.error('Error fetching loan requests:', response.statusText);
             }
         } catch (error) {
-            console.error("Error fetching loan requests:", error);
+            console.error('Error fetching loan requests:', error);
         }
     };
 

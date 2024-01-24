@@ -18,10 +18,12 @@ const auth = {
                 }
             );
             const token = response.data.token;
-            Cookies.set('JWT_TOKEN', token, {expires: 3600});
+            //Cookies.set('JWT_TOKEN', token, {expires: 3600});
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             auth.isAuthenticated = true;
             callback();
         } catch (e) {
+            alert("Authentication failed");
             console.error("Authentication failed: ", e);
         }
     },

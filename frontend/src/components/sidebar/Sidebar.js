@@ -4,7 +4,7 @@ import {
     faSignOutAlt,
     faUsers,
     faHandHoldingDollar,
-    faCommentsDollar, faSackDollar,
+    faCommentsDollar, faSackDollar, faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import {useContext} from "react";
 import {AuthContext} from "../../auth/AuthContext.js";
@@ -50,6 +50,13 @@ const Sidebar = ({collapsed, setCollapsed}) => {
             >
                 <FontAwesomeIcon icon={faCommentsDollar} className="menu-item-icon"/>
                 <span className="menu-link">Requests</span>
+            </div>
+            <div
+                className="menu-item"
+                onClick={() => navigate("/account")}
+            >
+                <FontAwesomeIcon icon={faUser} className="menu-item-icon"/>
+                <span className="menu-link">Account</span>
             </div>
             <div className="spacer-logout"></div>
             <div
