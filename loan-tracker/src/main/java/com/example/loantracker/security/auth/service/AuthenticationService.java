@@ -1,6 +1,9 @@
 package com.example.loantracker.security.auth.service;
 
 import com.example.loantracker.loansummary.service.LoanSummaryService;
+import com.example.loantracker.login.failed.service.FailedLoginAttemptService;
+import com.example.loantracker.login.ip_tracking.IpTrackingService;
+import com.example.loantracker.login.util.LoginUtil;
 import com.example.loantracker.security.auth.request.AuthenticationRequest;
 import com.example.loantracker.security.auth.request.ChangePasswordRequest;
 import com.example.loantracker.security.auth.request.RegisterRequest;
@@ -13,6 +16,7 @@ import com.example.loantracker.user.exception.UserAlreadyRegisteredException;
 import com.example.loantracker.user.model.Role;
 import com.example.loantracker.user.model.User;
 import com.example.loantracker.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -22,7 +26,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
 @Service
@@ -34,6 +37,9 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final LoanSummaryService loanSummaryService;
+    private final FailedLoginAttemptService failedLoginAttemptService;
+    private final IpTrackingService ipTrackingService;
+    private final LoginUtil loginUtil;
 
     private static final String PASSWORD_PATTERN =
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+])[A-Za-z\\d!@#$%^&*()_+]{8,}$";
@@ -64,8 +70,6 @@ public class AuthenticationService {
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.USER)
-                    .failedLoginAttempts(0)
-                    .lastFailedLoginAttempt(null)
                     .build();
             User savedUser = userRepository.save(user);
 
@@ -83,7 +87,7 @@ public class AuthenticationService {
         }
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest) {
         if (!validatePassword(request.getPassword())) {
             return AuthenticationResponse.builder()
                     .token(null)
@@ -95,11 +99,13 @@ public class AuthenticationService {
         }
 
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        String ipAddress = loginUtil.getClientIpAddress(httpServletRequest);
 
-        if (isAccountLocked(user)) {
+        if (ipTrackingService.isIpBlocked(ipAddress)) {
             return AuthenticationResponse.builder()
                     .token(null)
-                    .message("Account is locked. Try again later.")
+                    .message("For security reasons, your access is temporarily restricted. " +
+                            "Please wait and try again later.")
                     .success(false)
                     .build();
         }
@@ -111,10 +117,10 @@ public class AuthenticationService {
                             request.getPassword())
             );
 
-            user.resetFailedLoginAttempts();
             userRepository.save(user);
-
             var token = jwtService.generateToken(user);
+
+            ipTrackingService.resetFailedAttempts(ipAddress);
 
             return AuthenticationResponse.builder()
                     .token(token)
@@ -122,12 +128,12 @@ public class AuthenticationService {
                     .success(true)
                     .build();
         } catch (BadCredentialsException e) {
-            user.incrementFailedLoginAttempts();
-            userRepository.save(user);
+            failedLoginAttemptService.handleFailedLoginAttempt(request, httpServletRequest);
+            ipTrackingService.updateFailedAttempts(ipAddress);
 
             return AuthenticationResponse.builder()
                     .token(null)
-                    .message("Invalid credentials. Please try again.")
+                    .message("Incorrect credentials. Please try again.")
                     .success(false)
                     .build();
         }
@@ -162,14 +168,12 @@ public class AuthenticationService {
                     .success(true)
                     .build();
         } catch (Exception e) {
-            e.printStackTrace();
             return ChangePasswordResponse.builder()
                     .message("Failed to change password. Please try again.")
                     .success(false)
                     .build();
         }
     }
-
 
 
     private String getCurrentUserEmail() {
@@ -179,10 +183,5 @@ public class AuthenticationService {
                 .getPrincipal();
 
         return userDetails.getUsername();
-    }
-
-    private boolean isAccountLocked(User user) {
-        return user.getFailedLoginAttempts() >= 5 &&
-                user.getLastFailedLoginAttempt().plusMinutes(5).isAfter(LocalDateTime.now());
     }
 }

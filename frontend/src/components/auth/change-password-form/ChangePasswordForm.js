@@ -51,9 +51,9 @@ const ChangePasswordForm = () => {
     };
 
     return (
-        <div className="container">
-            <div className="row h-100 justify-content-center">
-                <div className="col-sm-5">
+        <div className="container-fluid bg-body-tertiary">
+            <div className="row h-100 d-flex align-items-center justify-content-center">
+                <div className="col-sm-3">
                     <div className="card">
                         <div className="card-header form-header text-center">
                             <h3>Change Password</h3>

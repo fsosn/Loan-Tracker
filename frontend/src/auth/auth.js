@@ -1,6 +1,5 @@
 import {API_ENDPOINTS} from "../config/config.js";
 import axios from 'axios';
-import Cookies from 'js-cookie';
 
 const auth = {
     isAuthenticated: false,
@@ -17,18 +16,13 @@ const auth = {
                     password
                 }
             );
-            if(response.data.message === "Account is locked. Try again later."){
-                alert("Account is locked for 5 minutes. Try again later.");
-                window.location.reload()
-                return
-            } else if (!response.data.success){
-                alert("Incorrect credentials");
+            if (response.data.success === false) {
+                alert(response.data.message);
                 window.location.reload()
                 return
             }
 
             const token = response.data.token;
-            //Cookies.set('JWT_TOKEN', token, {expires: 3600});
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             auth.isAuthenticated = true;
             callback();

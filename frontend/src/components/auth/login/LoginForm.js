@@ -1,15 +1,15 @@
 import './LoginForm.css';
-import { useState } from 'react';
-import { useContext } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../../auth/AuthContext.js';
+import {useState} from 'react';
+import {useContext} from 'react';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
+import {AuthContext} from '../../../auth/AuthContext.js';
 import validate from '../utils/validate.js';
 
 const LoginForm = () => {
     const navigate = useNavigate();
     const auth = useContext(AuthContext);
     const location = useLocation();
-    const [password, setPassword] = useState('');
+    const [, setPassword] = useState('');
 
     let from = location.state?.from?.pathname || '/';
 
@@ -27,15 +27,15 @@ const LoginForm = () => {
 
         if (validate(password)) {
             auth.signIn(username, password, () => {
-                navigate(from, { replace: true });
+                navigate(from, {replace: true});
             });
         }
     }
 
     return (
-        <div className="container">
-            <div className="row h-100 justify-content-center">
-                <div className="col-sm-5">
+        <div className="container-fluid bg-body-tertiary">
+            <div className="row h-100 d-flex align-items-center justify-content-center">
+                <div className="col-sm-3">
                     <div className="card">
                         <div className="card-header form-header text-center">
                             <h3>Sign In</h3>
@@ -75,10 +75,12 @@ const LoginForm = () => {
                                 </div>
                             </form>
                             <div className="mt-3 text-center form-label-extras">
-                                <p>Don't have an account?</p>
-                                <Link to="/register" className="text-decoration-none href-color">
-                                    Register
-                                </Link>
+                                <p>
+                                    Don't have an account?{" "}
+                                    <Link to="/register" className="text-decoration-none href-color">
+                                        Register
+                                    </Link>
+                                </p>
                             </div>
                         </div>
                     </div>
