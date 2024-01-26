@@ -1,6 +1,5 @@
 import {API_ENDPOINTS} from "../config/config.js";
 import axios from 'axios';
-import Cookies from 'js-cookie';
 
 const auth = {
     isAuthenticated: false,
@@ -17,19 +16,27 @@ const auth = {
                     password
                 }
             );
+            if (response.data.success === false) {
+                alert(response.data.message);
+                window.location.reload()
+                return
+            }
+
             const token = response.data.token;
-            //Cookies.set('JWT_TOKEN', token, {expires: 3600});
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             auth.isAuthenticated = true;
             callback();
         } catch (e) {
             alert("Authentication failed");
             console.error("Authentication failed: ", e);
+            window.location.reload()
         }
     },
     signOut: (callback) => {
-        Cookies.remove('JWT_TOKEN');
+        let token = null;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         auth.isAuthenticated = false;
+        window.location.reload()
         callback();
     }
 };

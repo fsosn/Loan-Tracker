@@ -1,12 +1,11 @@
 import {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import {API_ENDPOINTS} from "../../../config/config.js";
-import Cookies from "js-cookie";
 import validate from "../utils/validate.js";
 import PasswordStrength from "../password-strength/PasswordStrength.js";
+import axios from "axios";
 
 const Register = () => {
-    const navigate = useNavigate();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -35,33 +34,14 @@ const Register = () => {
         };
 
         try {
-            const xsrfToken = Cookies.get('XSRF_TOKEN');
-            const response = await fetch(
+            const response = await axios.post(
                 API_ENDPOINTS.BASE_URL +
                 API_ENDPOINTS.API +
                 API_ENDPOINTS.AUTH +
                 API_ENDPOINTS.REGISTER,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-XSRF-TOKEN': xsrfToken,
-                    },
-                    body: JSON.stringify(userData),
-                    credentials: 'include',
-                    mode: 'cors',
-                });
-            if (response.ok) {
-                navigate('/');
-            } else {
-                const errorResponse = await response.text();
-                if (response.status === 500) {
-                    setRegistrationError('E-mail is already taken.');
-                } else {
-                    console.error('Error during registration:', errorResponse);
-
-                }
-            }
+                userData,
+            );
+            alert(response.data.message);
         } catch (error) {
             console.error('Error during registration:', error);
         }
@@ -77,9 +57,9 @@ const Register = () => {
     };
 
     return (
-        <div className="container mx-auto">
-            <div className="row h-100 justify-content-center">
-                <div className="col-sm-5">
+        <div className="container-fluid bg-body-tertiary">
+            <div className="row h-100 d-flex align-items-center justify-content-center">
+                <div className="col-sm-3">
                     <div className="card">
                         <div className="card-header text-center form-header">
                             <h3>Register</h3>
@@ -165,8 +145,12 @@ const Register = () => {
                                 </div>
                             </form>
                             <div className="mt-3 text-center form-label-extras">
-                                <p>Already have an account? <a className="text-decoration-none href-color"
-                                                               href="/login">Sign In</a></p>
+                                <p>
+                                    Already have an account?{" "}
+                                    <Link to="/login" className="text-decoration-none href-color">
+                                        Sign in
+                                    </Link>
+                                </p>
                             </div>
                         </div>
                     </div>

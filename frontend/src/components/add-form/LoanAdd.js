@@ -19,12 +19,7 @@ const LoanAdd = () => {
     useEffect(() => {
         const getUsers = async () => {
             try {
-                const headers = {
-                    'Content-Type': 'application/json',
-                };
-
                 const response = await axios.get('https://127.0.0.1:8443/api/users/get/all', {
-                    headers: headers,
                 });
 
                 if (response.status === 200) {

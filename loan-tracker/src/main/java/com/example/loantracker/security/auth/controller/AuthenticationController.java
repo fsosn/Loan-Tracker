@@ -7,6 +7,7 @@ import com.example.loantracker.security.auth.response.AuthenticationResponse;
 import com.example.loantracker.security.auth.response.ChangePasswordResponse;
 import com.example.loantracker.security.auth.response.RegisterResponse;
 import com.example.loantracker.security.auth.service.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("${api.auth.authenticate}")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+    public ResponseEntity<AuthenticationResponse> authenticate(
+            @RequestBody AuthenticationRequest request,
+            HttpServletRequest httpServletRequest) {
+        return ResponseEntity.ok(authenticationService.authenticate(request, httpServletRequest));
     }
 
     @PostMapping("${api.auth.change}")

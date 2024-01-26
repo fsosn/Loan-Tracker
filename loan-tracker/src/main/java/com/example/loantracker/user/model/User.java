@@ -40,7 +40,7 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getPassword(){
+    public String getPassword() {
         return password;
     }
 
@@ -63,5 +63,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }
