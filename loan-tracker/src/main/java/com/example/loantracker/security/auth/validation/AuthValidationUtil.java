@@ -37,6 +37,10 @@ public class AuthValidationUtil {
                 Pattern.matches(PASSWORD_PATTERN, password);
     }
 
+    public static boolean isTokenValid(String token) {
+        return token != null && !token.isBlank() && !token.isEmpty() && token.length() < 50;
+    }
+
 
     public void validateRegistrationData(String firstName,
                                          String lastName,
@@ -75,7 +79,7 @@ public class AuthValidationUtil {
         }
     }
 
-    public void validateChangePasswordData(String oldPassword, String newPassword){
+    public void validateChangePasswordData(String oldPassword, String newPassword) {
         if (!isPasswordValid(oldPassword)) {
             throw new RuntimeException("Invalid old password." +
                     " It must have a minimum of 8 ASCII characters and contain at least" +
@@ -83,6 +87,21 @@ public class AuthValidationUtil {
         }
         if (!isPasswordValid(newPassword)) {
             throw new RuntimeException("Invalid new password." +
+                    " It must have a minimum of 8 ASCII characters and contain at least" +
+                    " one lowercase letter, one uppercase letter, one digit, and one special character.");
+        }
+    }
+
+    public void validateForgotPasswordData(String email, String token, String password) {
+        if (!isEmailValid(email)) {
+            throw new RuntimeException("Invalid email." +
+                    " Please provide a valid email address (e.g., user@example.com).");
+        }
+        if (!isTokenValid(token)) {
+            throw new RuntimeException("Invalid or empty reset token.");
+        }
+        if (!isPasswordValid(password)) {
+            throw new RuntimeException("Invalid password." +
                     " It must have a minimum of 8 ASCII characters and contain at least" +
                     " one lowercase letter, one uppercase letter, one digit, and one special character.");
         }

@@ -6,6 +6,7 @@ import com.example.loantracker.login.ip_tracking.IpTrackingService;
 import com.example.loantracker.login.util.LoginUtil;
 import com.example.loantracker.security.auth.request.AuthenticationRequest;
 import com.example.loantracker.security.auth.request.ChangePasswordRequest;
+import com.example.loantracker.security.auth.request.ForgotPasswordRequest;
 import com.example.loantracker.security.auth.request.RegisterRequest;
 import com.example.loantracker.security.auth.response.AuthenticationResponse;
 import com.example.loantracker.security.auth.response.ChangePasswordResponse;
@@ -13,6 +14,8 @@ import com.example.loantracker.security.auth.response.RegisterResponse;
 import com.example.loantracker.security.auth.util.CustomPasswordEncoder;
 import com.example.loantracker.security.auth.validation.AuthValidationUtil;
 import com.example.loantracker.security.jwt.JwtService;
+import com.example.loantracker.security.password_reset.ForgotPasswordService;
+import com.example.loantracker.security.password_reset.PasswordResetTokenRepository;
 import com.example.loantracker.user.exception.UserAlreadyRegisteredException;
 import com.example.loantracker.user.model.Role;
 import com.example.loantracker.user.model.User;
@@ -41,6 +44,8 @@ public class AuthenticationService {
     private final IpTrackingService ipTrackingService;
     private final LoginUtil loginUtil;
     private final AuthValidationUtil validation;
+    private final ForgotPasswordService forgotPasswordService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     public RegisterResponse register(RegisterRequest request) {
         try {
@@ -171,6 +176,42 @@ public class AuthenticationService {
                     .build();
         }
 
+    }
+
+    public ChangePasswordResponse forgotPassword(ForgotPasswordRequest request) {
+        try {
+            validation.validateForgotPasswordData(
+                    request.getEmail(),
+                    request.getToken(),
+                    request.getPassword()
+            );
+
+            if (forgotPasswordService.verifyResetToken(
+                    request.getEmail(),
+                    request.getToken())
+            ) {
+                User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
+                userRepository.save(user);
+
+                passwordResetTokenRepository.deleteByToken(request.getToken());
+
+                return ChangePasswordResponse.builder()
+                        .message("Password reset successfully.")
+                        .success(true)
+                        .build();
+            } else {
+                return ChangePasswordResponse.builder()
+                        .message("Invalid or expired reset token.")
+                        .success(false)
+                        .build();
+            }
+        } catch (RuntimeException e) {
+            return ChangePasswordResponse.builder()
+                    .message("Error during password reset: " + e.getMessage())
+                    .success(false)
+                    .build();
+        }
     }
 
     private String getCurrentUserEmail() {

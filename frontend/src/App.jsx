@@ -14,6 +14,8 @@ import LoanAdd from "./components/add-form/LoanAdd.js";
 import LoansRequestsPage from "./pages/LoansRequestsPage.js";
 import AccountPage from "./pages/AccountPage.js";
 import ChangePasswordForm from "./components/auth/change-password-form/ChangePasswordForm.js";
+import ForgotPasswordForm from "./components/auth/forgot-password/ForgotPasswordForm.js";
+import ResetPasswordForm from "./components/auth/reset-password/ResetPasswordForm.js";
 
 function App() {
 
@@ -49,6 +51,8 @@ function App() {
             <Route path='/change-password' element={<RequireAuth><ChangePasswordForm/></RequireAuth>}/>
             <Route path='/login' element={<LoginForm/>}/>
             <Route path='/register' element={<RegisterForm/>}/>
+            <Route path='/forgot-password' element={<ForgotPasswordForm/>}/>
+            <Route path='/reset-password' element={<ResetPasswordForm/>}/>
         </Routes>
 
     );
