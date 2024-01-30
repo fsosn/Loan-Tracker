@@ -3,18 +3,24 @@ import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import validate from '../utils/validate';
 
-const ChangePasswordForm = () => {
+const ResetPasswordForm = () => {
     const navigate = useNavigate();
-    const [oldPassword, setOldPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
+    const [email, setEmail] = useState('');
+    const [token, setToken] = useState('');
+
+    const [password, setPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
 
-    const handleOldPasswordChange = (e) => {
-        setOldPassword(e.target.value);
+    const handleEmailChange = (e) => {
+        setEmail(e.target.value);
+    };
+
+    const handleTokenChange = (e) => {
+        setToken(e.target.value);
     };
 
     const handleNewPasswordChange = (e) => {
-        setNewPassword(e.target.value);
+        setPassword(e.target.value);
     };
 
     const handleRepeatPasswordChange = (e) => {
@@ -24,24 +30,23 @@ const ChangePasswordForm = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        if (!validate(oldPassword) || !validate(newPassword) || newPassword !== repeatPassword) {
+        if (!validate(password) || password !== repeatPassword) {
             return;
         }
 
         const changePasswordRequest = {
-            oldPassword,
-            newPassword,
+            email,
+            token,
+            password,
         };
 
-        axios.post("https://127.0.0.1:8443/api/auth/change-password", changePasswordRequest, {
+        axios.post("https://127.0.0.1:8443/api/auth/reset-password", changePasswordRequest, {
             headers: {
                 'Content-Type': 'application/json',
             },
         })
-            .then(response => {
-                alert(response.data.message);
-                if(!response.data.success) return
-                navigate('/account');
+            .then(() => {
+                navigate('/');
             })
             .catch(error => {
                 console.error('Error changing password:', error);
@@ -54,20 +59,32 @@ const ChangePasswordForm = () => {
                 <div className="col-sm-3">
                     <div className="card">
                         <div className="card-header form-header text-center">
-                            <h3>Change Password</h3>
+                            <h3>Reset Password</h3>
                         </div>
                         <div className="card-body">
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
-                                    <label htmlFor="oldPassword" className="form-label">
-                                        Old Password:
+                                    <label htmlFor="email" className="form-label">
+                                        Email:
                                     </label>
                                     <input
-                                        name="oldPassword"
-                                        type="password"
+                                        name="email"
+                                        type="text"
                                         className="form-control"
-                                        id="oldPassword"
-                                        onChange={handleOldPasswordChange}
+                                        id="email"
+                                        onChange={handleEmailChange}
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="token" className="form-label">
+                                        Token:
+                                    </label>
+                                    <input
+                                        name="token"
+                                        type="text"
+                                        className="form-control"
+                                        id="token"
+                                        onChange={handleTokenChange}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -94,14 +111,21 @@ const ChangePasswordForm = () => {
                                         onChange={handleRepeatPasswordChange}
                                     />
                                 </div>
-                                <div className="text-center sign-button-container">
-                                    <button
-                                        type="submit"
-                                        className="btn btn-block d-grid gap-2 col-6 mx-auto sign-button"
-                                    >
-                                        Change Password
-                                    </button>
-
+                                <div className="row justify-content-center">
+                                    <div className="col-md-6 text-end">
+                                        <button type="submit" className="btn btn-block btn-success">
+                                            Submit
+                                        </button>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate(-1)}
+                                            className="btn btn-block btn-primary"
+                                        >
+                                            Go back
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -112,4 +136,4 @@ const ChangePasswordForm = () => {
     );
 };
 
-export default ChangePasswordForm;
+export default ResetPasswordForm;

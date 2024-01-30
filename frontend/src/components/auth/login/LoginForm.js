@@ -64,7 +64,14 @@ const LoginForm = () => {
                                         id="password"
                                         onChange={handlePasswordChange}
                                     />
+                                    <div>
+                                        <Link to="/forgot-password"
+                                              className="text-decoration-none href-color form-label-extras">
+                                            Forgot password?
+                                        </Link>
+                                    </div>
                                 </div>
+
                                 <div className="text-center sign-button-container">
                                     <button
                                         type="submit"
