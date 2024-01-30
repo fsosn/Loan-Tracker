@@ -1,14 +1,17 @@
 package com.example.loantracker.login.failed.service;
 
-import com.example.loantracker.login.failed.repository.FailedLoginAttemptRepository;
 import com.example.loantracker.login.failed.model.FailedLoginAttempt;
+import com.example.loantracker.login.failed.repository.FailedLoginAttemptRepository;
 import com.example.loantracker.login.util.LoginUtil;
 import com.example.loantracker.security.auth.request.AuthenticationRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -29,5 +32,18 @@ public class FailedLoginAttemptService {
                 .build();
 
         repository.save(failedLoginAttempt);
+    }
+
+    public List<FailedLoginAttempt> getFailedLoginAttemptsByEmail() {
+        return repository.findAllByEmailUsed(getCurrentUserEmail());
+    }
+
+    private String getCurrentUserEmail() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return userDetails.getUsername();
     }
 }
