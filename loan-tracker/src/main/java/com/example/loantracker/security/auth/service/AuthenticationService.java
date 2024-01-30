@@ -11,7 +11,6 @@ import com.example.loantracker.security.auth.request.RegisterRequest;
 import com.example.loantracker.security.auth.response.AuthenticationResponse;
 import com.example.loantracker.security.auth.response.ChangePasswordResponse;
 import com.example.loantracker.security.auth.response.RegisterResponse;
-import com.example.loantracker.security.auth.util.CustomPasswordEncoder;
 import com.example.loantracker.security.auth.validation.AuthValidationUtil;
 import com.example.loantracker.security.jwt.JwtService;
 import com.example.loantracker.security.password_reset.ForgotPasswordService;
@@ -27,6 +26,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,7 +36,7 @@ import java.math.BigDecimal;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
-    private final CustomPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final LoanSummaryService loanSummaryService;
