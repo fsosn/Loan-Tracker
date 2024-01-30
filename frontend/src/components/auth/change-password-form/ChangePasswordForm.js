@@ -25,7 +25,6 @@ const ChangePasswordForm = () => {
         event.preventDefault();
 
         if (!validate(oldPassword) || !validate(newPassword) || newPassword !== repeatPassword) {
-            alert('Invalid password format or passwords do not match');
             return;
         }
 
@@ -43,7 +42,6 @@ const ChangePasswordForm = () => {
                 alert(response.data.message);
                 if(!response.data.success) return
                 navigate('/account');
-                window.location.reload();
             })
             .catch(error => {
                 console.error('Error changing password:', error);

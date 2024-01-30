@@ -1,5 +1,5 @@
 import {useState, useEffect, useContext} from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import {AuthContext} from "../../auth/AuthContext.js";
 import axios from "axios";
 
@@ -19,8 +19,7 @@ const LoanAdd = () => {
     useEffect(() => {
         const getUsers = async () => {
             try {
-                const response = await axios.get('https://127.0.0.1:8443/api/users/get/all', {
-                });
+                const response = await axios.get('https://127.0.0.1:8443/api/users/get/all', {});
 
                 if (response.status === 200) {
                     const data = response.data;
@@ -38,32 +37,16 @@ const LoanAdd = () => {
     }, []);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         if (name === 'amount' && !/^\d*\.?\d*$/.test(value)) {
             return;
         }
 
-        setLoan((prevLoan) => ({ ...prevLoan, [name]: value }));
+        setLoan((prevLoan) => ({...prevLoan, [name]: value}));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(loan)
-
-        if (!loan.title.trim()) {
-            console.error('Title cannot be empty.');
-            return;
-        }
-
-        if (isNaN(parseFloat(loan.amount)) || parseFloat(loan.amount) <= 0) {
-            console.error('Amount must be a positive number.');
-            return;
-        }
-
-        if (!loan.dueDate) {
-            console.error('Due date cannot be empty.');
-            return;
-        }
 
         try {
             const headers = {
@@ -86,10 +69,14 @@ const LoanAdd = () => {
                 console.log('Loan added successfully');
                 navigate('/');
             } else {
+                alert(response.statusText)
                 console.error('Error adding loan:', response.statusText);
             }
         } catch (error) {
             console.error('Error:', error);
+            if (error.response.data) {
+                alert(error.response.data)
+            }
         }
     };
 
@@ -149,7 +136,8 @@ const LoanAdd = () => {
                                     </div>
                                 </div>
                                 <div className="row mb-3">
-                                    <label htmlFor="borrowerEmail" className="col-md-6 col-form-label text-end form-font">
+                                    <label htmlFor="borrowerEmail"
+                                           className="col-md-6 col-form-label text-end form-font">
                                         Borrower
                                     </label>
                                     <div className="col-md-6">
