@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {API_ENDPOINTS} from "../../../config/config.js";
 import validate from "../utils/validate.js";
 import PasswordStrength from "../password-strength/PasswordStrength.js";
@@ -13,6 +13,7 @@ const Register = () => {
     const [repeatPassword, setRepeatPassword] = useState('');
     const [registrationError, setRegistrationError] = useState('');
     const [repeatPasswordError, setRepeatPasswordError] = useState('');
+    const navigate = useNavigate();
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -42,6 +43,9 @@ const Register = () => {
                 userData,
             );
             alert(response.data.message);
+            if(response.data.success === true){
+                navigate("/login");
+            }
         } catch (error) {
             console.error('Error during registration:', error);
         }

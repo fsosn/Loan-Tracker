@@ -4,6 +4,7 @@ import com.example.loantracker.loan.dto.LoanDto;
 import com.example.loantracker.loan.dto.LoanRequestDto;
 import com.example.loantracker.loan.model.Loan;
 import com.example.loantracker.loan.repository.LoanRepository;
+import com.example.loantracker.loan.validation.LoanValidationUtil;
 import com.example.loantracker.loansummary.model.LoanSummary;
 import com.example.loantracker.loansummary.repository.LoanSummaryRepository;
 import com.example.loantracker.loansummary.service.LoanSummaryService;
@@ -27,6 +28,7 @@ public class LoanService {
     private final UserRepository userRepository;
     private final LoanSummaryRepository loanSummaryRepository;
     private final LoanSummaryService loanSummaryService;
+    private final LoanValidationUtil validator;
 
     public List<LoanDto> getAllUserLoansLent() {
         List<Loan> allUserLoansLent = loanRepository.findAllByUserId(getCurrentUserId());
@@ -53,6 +55,13 @@ public class LoanService {
     }
 
     public Loan createLoan(LoanDto loanDto) {
+        validator.validateLoanData(
+                loanDto.getTitle(),
+                loanDto.getBorrowerEmail(),
+                loanDto.getAmount(),
+                loanDto.getDueDate()
+        );
+
         String title = loanDto.getTitle();
         String borrowerEmail = loanDto.getBorrowerEmail();
         BigDecimal amount = loanDto.getAmount();

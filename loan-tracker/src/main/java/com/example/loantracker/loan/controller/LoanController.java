@@ -4,6 +4,7 @@ import com.example.loantracker.loan.dto.LoanDto;
 import com.example.loantracker.loan.dto.LoanRequestDto;
 import com.example.loantracker.loan.model.Loan;
 import com.example.loantracker.loan.service.LoanService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,10 +40,14 @@ public class LoanController {
     }
 
     @PostMapping("${api.loans.create}")
-    public ResponseEntity<Loan> createLoan(@RequestBody LoanDto loanDto) {
-        Loan createdLoan = loanService.createLoan(loanDto);
-
-        return ResponseEntity.ok(createdLoan);
+    public ResponseEntity<?> createLoan(@RequestBody LoanDto loanDto) {
+        try {
+            Loan createdLoan = loanService.createLoan(loanDto);
+            return ResponseEntity.ok(createdLoan);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
     }
 
     @PostMapping("${api.loans.confirm}")

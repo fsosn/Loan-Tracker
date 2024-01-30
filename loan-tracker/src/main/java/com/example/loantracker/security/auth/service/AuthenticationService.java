@@ -11,6 +11,7 @@ import com.example.loantracker.security.auth.response.AuthenticationResponse;
 import com.example.loantracker.security.auth.response.ChangePasswordResponse;
 import com.example.loantracker.security.auth.response.RegisterResponse;
 import com.example.loantracker.security.auth.util.CustomPasswordEncoder;
+import com.example.loantracker.security.auth.validation.AuthValidationUtil;
 import com.example.loantracker.security.jwt.JwtService;
 import com.example.loantracker.user.exception.UserAlreadyRegisteredException;
 import com.example.loantracker.user.model.Role;
@@ -26,7 +27,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -40,14 +40,7 @@ public class AuthenticationService {
     private final FailedLoginAttemptService failedLoginAttemptService;
     private final IpTrackingService ipTrackingService;
     private final LoginUtil loginUtil;
-
-    private static final String PASSWORD_PATTERN =
-            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+])[A-Za-z\\d!@#$%^&*()_+]{8,}$";
-    private static final Pattern PASSWORD_REGEX = Pattern.compile(PASSWORD_PATTERN);
-
-    private boolean validatePassword(String password) {
-        return PASSWORD_REGEX.matcher(password).matches();
-    }
+    private final AuthValidationUtil validation;
 
     public RegisterResponse register(RegisterRequest request) {
         try {
@@ -55,14 +48,12 @@ public class AuthenticationService {
                 throw new UserAlreadyRegisteredException(request.getEmail());
             }
 
-            if (!validatePassword(request.getPassword())) {
-                return RegisterResponse.builder()
-                        .message("Password must have 8 letters and" +
-                                " contain at least one lowercase letter," +
-                                " one uppercase letter, one digit, and one special character")
-                        .success(false)
-                        .build();
-            }
+            validation.validateRegistrationData(
+                    request.getFirstName(),
+                    request.getLastName(),
+                    request.getEmail(),
+                    request.getPassword()
+            );
 
             var user = User.builder()
                     .firstName(request.getFirstName())
@@ -84,33 +75,33 @@ public class AuthenticationService {
                     .message(e.getMessage())
                     .success(false)
                     .build();
+        } catch (RuntimeException e) {
+            return RegisterResponse.builder()
+                    .message("Error during registration: " + e.getMessage())
+                    .success(false)
+                    .build();
         }
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest) {
-        if (!validatePassword(request.getPassword())) {
-            return AuthenticationResponse.builder()
-                    .token(null)
-                    .message("Password must have 8 letters and" +
-                            " contain at least one lowercase letter," +
-                            " one uppercase letter, one digit, and one special character")
-                    .success(false)
-                    .build();
-        }
-
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        String ipAddress = loginUtil.getClientIpAddress(httpServletRequest);
-
-        if (ipTrackingService.isIpBlocked(ipAddress)) {
-            return AuthenticationResponse.builder()
-                    .token(null)
-                    .message("For security reasons, your access is temporarily restricted. " +
-                            "Please wait and try again later.")
-                    .success(false)
-                    .build();
-        }
-
+        String ipAddress = null;
         try {
+            validation.validateLoginData(
+                    request.getEmail(),
+                    request.getPassword()
+            );
+
+            var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+            ipAddress = loginUtil.getClientIpAddress(httpServletRequest);
+
+            if (ipTrackingService.isIpBlocked(ipAddress)) {
+                return AuthenticationResponse.builder()
+                        .token(null)
+                        .message("For security reasons, your access is temporarily restricted. " +
+                                "Please wait and try again later.")
+                        .success(false)
+                        .build();
+            }
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
@@ -136,26 +127,27 @@ public class AuthenticationService {
                     .message("Incorrect credentials. Please try again.")
                     .success(false)
                     .build();
+        } catch (RuntimeException e) {
+            return AuthenticationResponse.builder()
+                    .message("Error during login: " + e.getMessage())
+                    .success(false)
+                    .build();
         }
     }
 
     public ChangePasswordResponse changePassword(ChangePasswordRequest request) {
         try {
+            validation.validateChangePasswordData(
+                    request.getOldPassword(),
+                    request.getNewPassword()
+            );
+
             String currentUserEmail = getCurrentUserEmail();
             var user = userRepository.findByEmail(currentUserEmail).orElseThrow();
 
             if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
                 return ChangePasswordResponse.builder()
                         .message("Old password is incorrect.")
-                        .success(false)
-                        .build();
-            }
-
-            if (!validatePassword(request.getNewPassword())) {
-                return ChangePasswordResponse.builder()
-                        .message("New password must have 8 letters and" +
-                                " contain at least one lowercase letter," +
-                                " one uppercase letter, one digit, and one special character")
                         .success(false)
                         .build();
             }
@@ -167,14 +159,19 @@ public class AuthenticationService {
                     .message("Password changed successfully.")
                     .success(true)
                     .build();
+        } catch (RuntimeException e) {
+            return ChangePasswordResponse.builder()
+                    .message("Error during changing password: " + e.getMessage())
+                    .success(false)
+                    .build();
         } catch (Exception e) {
             return ChangePasswordResponse.builder()
                     .message("Failed to change password. Please try again.")
                     .success(false)
                     .build();
         }
-    }
 
+    }
 
     private String getCurrentUserEmail() {
         UserDetails userDetails = (UserDetails) SecurityContextHolder
