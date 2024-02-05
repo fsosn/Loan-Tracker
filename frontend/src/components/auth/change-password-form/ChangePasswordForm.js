@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import axios from 'axios';
 import validate from '../utils/validate';
+import api from "../../../services/api.js";
 
 const ChangePasswordForm = () => {
     const navigate = useNavigate();
@@ -21,7 +21,7 @@ const ChangePasswordForm = () => {
         setRepeatPassword(e.target.value);
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         if (!validate(oldPassword) || !validate(newPassword) || newPassword !== repeatPassword) {
@@ -33,19 +33,17 @@ const ChangePasswordForm = () => {
             newPassword,
         };
 
-        axios.post("https://127.0.0.1:8443/api/auth/change-password", changePasswordRequest, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-            .then(response => {
-                alert(response.data.message);
-                if(!response.data.success) return
-                navigate('/account');
-            })
-            .catch(error => {
-                console.error('Error changing password:', error);
-            });
+        try {
+            const responseData = await api.changePassword(changePasswordRequest);
+            alert(responseData.message);
+
+            if (responseData.success) {
+                navigate("/account")
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+
     };
 
     return (
@@ -95,13 +93,22 @@ const ChangePasswordForm = () => {
                                     />
                                 </div>
                                 <div className="text-center sign-button-container">
-                                    <button
-                                        type="submit"
-                                        className="btn btn-block d-grid gap-2 col-6 mx-auto sign-button"
-                                    >
-                                        Change Password
-                                    </button>
-
+                                    <div className="row">
+                                        <div className="col">
+                                            <button type="submit" className="btn btn-block action-button">
+                                                Submit
+                                            </button>
+                                        </div>
+                                        <div className="col">
+                                            <button
+                                                type="button"
+                                                className="btn btn-block bg-primary"
+                                                onClick={() => navigate(-1)}
+                                            >
+                                                Go back
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </form>
                         </div>

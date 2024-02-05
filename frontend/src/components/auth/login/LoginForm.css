@@ -7,12 +7,12 @@
     padding-bottom: 8px;
 }
 
-.sign-button {
+.action-button {
     background-color: #7752fe;
     color: white;
 }
 
-.sign-button:hover {
+.action-button:hover {
     background-color: #815efa;
     color: white;
 }

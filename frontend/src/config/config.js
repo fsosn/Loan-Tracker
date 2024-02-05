@@ -4,5 +4,19 @@ export const API_ENDPOINTS = {
     AUTH: "/auth",
     AUTHENTICATE: "/authenticate",
     REGISTER: "/register",
-    XSRF: "/xsrf-token"
+    XSRF: "/xsrf-token",
+    FAILED_LOGIN: "/failed-login-attempts",
+    LOANS: "/loans",
+    CREATE: "/create",
+    GET: "/get",
+    GET_ALL: "/get/all",
+    BORROWED: "/borrowed",
+    LENT: "/lent",
+    REQUESTS: "/requests",
+    SUMMARY: "/summary",
+    CHANGE_PASSWORD: "/change-password",
+    RESET_PASSWORD: "/reset-password",
+    FORGOT_PASSWORD: "/forgot-password",
+    USERS: "/users",
+
 };

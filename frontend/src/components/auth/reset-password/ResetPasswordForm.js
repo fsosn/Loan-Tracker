@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import axios from 'axios';
 import validate from '../utils/validate';
+import api from "../../../services/api.js";
 
 const ResetPasswordForm = () => {
     const navigate = useNavigate();
@@ -27,7 +27,7 @@ const ResetPasswordForm = () => {
         setRepeatPassword(e.target.value);
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         if (!validate(password) || password !== repeatPassword) {
@@ -40,17 +40,12 @@ const ResetPasswordForm = () => {
             password,
         };
 
-        axios.post("https://127.0.0.1:8443/api/auth/reset-password", changePasswordRequest, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-            .then(() => {
-                navigate('/');
-            })
-            .catch(error => {
-                console.error('Error changing password:', error);
-            });
+        try {
+            await api.resetPassword(changePasswordRequest);
+            navigate("/")
+        } catch (error) {
+            console.error(error.message);
+        }
     };
 
     return (

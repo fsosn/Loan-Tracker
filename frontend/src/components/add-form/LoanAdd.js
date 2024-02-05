@@ -1,7 +1,7 @@
-import {useState, useEffect, useContext} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {AuthContext} from "../../auth/AuthContext.js";
-import axios from "axios";
+import api from "../../services/api.js";
 
 const LoanAdd = () => {
     const navigate = useNavigate();
@@ -17,24 +17,18 @@ const LoanAdd = () => {
     const user = auth.user;
 
     useEffect(() => {
-        const getUsers = async () => {
+        const fetchUsers = async () => {
             try {
-                const response = await axios.get('https://127.0.0.1:8443/api/users/get/all', {});
-
-                if (response.status === 200) {
-                    const data = response.data;
-                    const filteredUsers = data.filter((email) => email !== user);
-                    setUsers(filteredUsers);
-                } else {
-                    console.error('Error fetching users:', response.statusText);
-                }
+                const data = await api.fetchAllUsers();
+                const filteredUsers = data.filter((email) => email !== user);
+                setUsers(filteredUsers);
             } catch (error) {
                 console.error('Error fetching users:', error);
             }
         };
 
-        getUsers();
-    }, []);
+        fetchUsers();
+    }, [user]);
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -49,10 +43,6 @@ const LoanAdd = () => {
         e.preventDefault();
 
         try {
-            const headers = {
-                'Content-Type': 'application/json',
-            };
-
             const loanRequestDto = {
                 title: loan.title,
                 borrowerEmail: loan.borrowerEmail,
@@ -60,18 +50,9 @@ const LoanAdd = () => {
                 dueDate: loan.dueDate,
             };
 
-            const response = await axios.post('https://127.0.0.1:8443/api/loans/create', loanRequestDto, {
-                headers: headers,
-                withCredentials: true,
-            });
+            await api.createLoan(loanRequestDto);
 
-            if (response.status === 200) {
-                console.log('Loan added successfully');
-                navigate('/');
-            } else {
-                alert(response.statusText)
-                console.error('Error adding loan:', response.statusText);
-            }
+            navigate('/');
         } catch (error) {
             console.error('Error:', error);
             if (error.response.data) {
@@ -157,13 +138,13 @@ const LoanAdd = () => {
                                         </select>
                                     </div>
                                 </div>
-                                <div className="row justify-content-center">
-                                    <div className="col-md-6 text-end">
+                                <div className="row justify-content-center text-center">
+                                    <div className="col-6">
                                         <button type="submit" className="btn btn-block btn-success">
                                             Submit
                                         </button>
                                     </div>
-                                    <div className="col-md-6">
+                                    <div className="col-6">
                                         <button
                                             type="button"
                                             onClick={() => navigate('/')}

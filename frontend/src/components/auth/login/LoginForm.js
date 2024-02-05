@@ -1,6 +1,5 @@
 import './LoginForm.css';
-import {useState} from 'react';
-import {useContext} from 'react';
+import {useContext, useState} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
 import {AuthContext} from '../../../auth/AuthContext.js';
 import validate from '../utils/validate.js';
@@ -75,7 +74,7 @@ const LoginForm = () => {
                                 <div className="text-center sign-button-container">
                                     <button
                                         type="submit"
-                                        className="btn btn-block d-grid gap-2 col-6 mx-auto sign-button"
+                                        className="btn btn-block d-grid gap-2 col-6 mx-auto action-button"
                                     >
                                         Sign in
                                     </button>
@@ -83,7 +82,7 @@ const LoginForm = () => {
                             </form>
                             <div className="mt-3 text-center form-label-extras">
                                 <p>
-                                    Don't have an account?{" "}
+                                    Don&apos;t have an account?{" "}
                                     <Link to="/register" className="text-decoration-none href-color">
                                         Register
                                     </Link>
