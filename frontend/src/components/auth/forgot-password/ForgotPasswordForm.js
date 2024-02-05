@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import axios from 'axios';
+import api from "../../../services/api.js";
 
 const ForgotPasswordForm = () => {
     const navigate = useNavigate();
@@ -13,19 +13,12 @@ const ForgotPasswordForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const encodedEmail = encodeURIComponent(email);
-        const url = `https://127.0.0.1:8443/api/auth/forgot-password?userEmail=${encodedEmail}`
-        axios.post(url, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-            .then(() => {
-                navigate('/reset-password');
-            })
-            .catch(error => {
-                console.error('Error changing password:', error);
-            });
+        try {
+            await api.sendForgotPasswordRequest(email);
+            navigate('/reset-password');
+        } catch (error) {
+            console.error('Error changing password:', error);
+        }
     };
 
     return (
