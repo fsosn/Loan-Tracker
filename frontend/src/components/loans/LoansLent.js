@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import api from "../../services/api.js";
 import {useNavigate} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faAdd, faRotateRight} from "@fortawesome/free-solid-svg-icons";
+import {faAdd, faRotateRight, faTrash} from "@fortawesome/free-solid-svg-icons";
 import Spinner from "../spinner/Spinner.js";
 
 const LoansLent = () => {
@@ -23,6 +23,17 @@ const LoansLent = () => {
             console.error('Error fetching borrowed loans:', error.message);
         } finally {
             setLoading(false)
+        }
+    };
+
+    const handleDeleteLoan = async (loanId) => {
+        console.log(loanId)
+        try {
+            await api.deleteLoan(loanId);
+            fetchLentLoans();
+        } catch (error) {
+            console.error('Error deleting loan:', error);
+            console.error('Error stack trace:', error.stack);
         }
     };
 
@@ -57,6 +68,7 @@ const LoansLent = () => {
                             <th>Amount</th>
                             <th>Due Date</th>
                             <th>Confirmed</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -67,6 +79,15 @@ const LoansLent = () => {
                                 <td>{loan.amount}</td>
                                 <td>{loan.dueDate}</td>
                                 <td>{loan.confirmed ? 'Yes' : 'No'}</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger"
+                                        onClick={() => handleDeleteLoan(loan.id)}
+                                    >
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                         </tbody>

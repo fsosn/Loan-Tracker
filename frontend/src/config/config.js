@@ -8,6 +8,7 @@ export const API_ENDPOINTS = {
     FAILED_LOGIN: "/failed-login-attempts",
     LOANS: "/loans",
     CREATE: "/create",
+    DELETE: "/delete",
     GET: "/get",
     GET_ALL: "/get/all",
     BORROWED: "/borrowed",
@@ -18,5 +19,4 @@ export const API_ENDPOINTS = {
     RESET_PASSWORD: "/reset-password",
     FORGOT_PASSWORD: "/forgot-password",
     USERS: "/users",
-
 };

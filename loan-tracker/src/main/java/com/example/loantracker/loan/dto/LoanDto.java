@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 public class LoanDto {
-
+    private Long id;
     private String title;
     private String borrowerEmail;
     private BigDecimal amount;
