@@ -49,6 +49,7 @@ api:
       summary: /get/summary
     create: /create
     confirm: /confirm
+    delete: /delete
   users:
     base: /api/users
     get:

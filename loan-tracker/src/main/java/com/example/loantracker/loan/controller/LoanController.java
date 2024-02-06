@@ -56,15 +56,9 @@ public class LoanController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PutMapping("${api.loans.update}")
-//    public ResponseEntity<Loan> updateLoan(@Valid @RequestBody Loan newLoan, @RequestParam Long id) {
-//        Loan updatedLoan = loanService.updateDebt(id, newLoan);
-//        return ResponseEntity.ok(updatedLoan);
-//    }
-
-//    @DeleteMapping("${api.loans.delete}")
-//    public ResponseEntity<Void> deleteLoan(@RequestParam Long id) {
-//        loanService.deleteLoan(id);
-//        return ResponseEntity.noContent().build();
-//    }
+    @DeleteMapping("${api.loans.delete}")
+    public ResponseEntity<Void> deleteLoan(@RequestParam Long loanId) {
+        loanService.deleteLoan(loanId);
+        return ResponseEntity.noContent().build();
+    }
 }

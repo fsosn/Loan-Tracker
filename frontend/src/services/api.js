@@ -191,6 +191,32 @@ const api = {
         }
     },
 
+    deleteLoan: async (loanId) => {
+        try {
+            const response = await axios.delete(
+                API_ENDPOINTS.BASE_URL +
+                API_ENDPOINTS.API +
+                API_ENDPOINTS.LOANS +
+                API_ENDPOINTS.DELETE,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    params: {
+                        loanId: loanId
+                    }
+                }
+            );
+
+            handleErrors(response);
+
+            return response.data;
+        } catch (error) {
+            console.error('Error deleting loan:', error);
+            throw error;
+        }
+    },
+
     fetchAllUsers: async () => {
         try {
             const response = await axios.get(

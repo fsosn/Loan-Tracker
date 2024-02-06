@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,7 +67,12 @@ public class LoanService {
         String borrowerEmail = loanDto.getBorrowerEmail();
         BigDecimal amount = loanDto.getAmount();
         LocalDate dueDate = loanDto.getDueDate();
-        Long borrowerId = userRepository.findByEmail(borrowerEmail).get().getId();
+
+        Optional<User> userOptional = userRepository.findByEmail(borrowerEmail);
+        if (userOptional.isEmpty()) {
+            throw new RuntimeException("There is no user with email: " + borrowerEmail);
+        }
+        Long borrowerId = userOptional.get().getId();
 
         Loan loan = new Loan(title, borrowerId, amount, dueDate);
         loan.setUserId(getCurrentUserId());
@@ -93,6 +99,24 @@ public class LoanService {
         loanRepository.save(loan);
     }
 
+    public void deleteLoan(Long loanId) {
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Loan was not found with id: " + loanId));
+
+        if (!Objects.equals(loan.getUserId(), getCurrentUserId())) {
+            throw new RuntimeException("Cannot delete someone else's loan.");
+        }
+
+        if (loan.getConfirmed()) {
+            LoanSummary loanSummary = loanSummaryRepository.findByUserId(getCurrentUserId());
+            if (loanSummary != null) {
+                loanSummaryService.subtractFromDebt(loan.getBorrowerId(), loan.getAmount());
+            }
+        }
+
+        loanRepository.delete(loan);
+    }
+
     private Long getCurrentUserId() {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.findByEmail(userDetails.getUsername()).orElseThrow().getId();
@@ -105,6 +129,7 @@ public class LoanService {
 
     private LoanDto mapToLoanDto(Loan loan) {
         return new LoanDto(
+                loan.getId(),
                 loan.getTitle(),
                 userRepository.findById(loan.getBorrowerId()).map(User::getEmail).orElse(null),
                 loan.getAmount(),

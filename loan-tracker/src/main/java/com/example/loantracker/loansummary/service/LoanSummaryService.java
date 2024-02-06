@@ -17,11 +17,11 @@ public class LoanSummaryService {
 
     private final LoanSummaryRepository loanSummaryRepository;
 
-    public List<LoanSummary> getAllLoanSummaries(){
+    public List<LoanSummary> getAllLoanSummaries() {
         return loanSummaryRepository.findAll();
     }
 
-    public void createSummary(Long userId, String email,  BigDecimal totalDebt) {
+    public void createSummary(Long userId, String email, BigDecimal totalDebt) {
         LoanSummary loanSummary = new LoanSummary(userId, email, totalDebt);
         loanSummaryRepository.save(loanSummary);
     }
@@ -34,6 +34,21 @@ public class LoanSummaryService {
 
         BigDecimal totalDebt = existingLoanSummary.getTotalDebt();
         existingLoanSummary.setTotalDebt(totalDebt.add(amountToAdd));
+        loanSummaryRepository.save(existingLoanSummary);
+    }
+
+    public void subtractFromDebt(Long userId, BigDecimal amountToSubtract) {
+        LoanSummary existingLoanSummary = loanSummaryRepository.findByUserId(userId);
+        if (existingLoanSummary == null) {
+            throw new LoanSummaryNotFoundException(userId);
+        }
+
+        BigDecimal totalDebt = existingLoanSummary.getTotalDebt();
+        if (totalDebt.compareTo(amountToSubtract) < 0) {
+            throw new IllegalArgumentException("Amount to subtract exceeds the total debt.");
+        }
+
+        existingLoanSummary.setTotalDebt(totalDebt.subtract(amountToSubtract));
         loanSummaryRepository.save(existingLoanSummary);
     }
 
