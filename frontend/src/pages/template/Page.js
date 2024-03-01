@@ -13,11 +13,11 @@ const Page = ({pageTitle, children}) => {
 
     return (
         <div className="container-fluid">
-            <div className={`wrapper ${collapsed && "wrapper-max"}`}>
+            <Sidebar collapsed={collapsed} setCollapsed={setCollapsed}/><div className={`wrapper ${collapsed && "wrapper-max"}`}>
                 <Header title={pageTitle}/>
                 {children}
             </div>
-            <Sidebar collapsed={collapsed} setCollapsed={setCollapsed}/>
+
         </div>
     );
 };

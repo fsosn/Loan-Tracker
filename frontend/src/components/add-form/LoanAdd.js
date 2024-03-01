@@ -3,7 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import {AuthContext} from "../../auth/AuthContext.js";
 import api from "../../services/api.js";
 
-const LoanAdd = () => {
+const LoanAdd = ({onClose, onSubmitSuccess}) => {
     const navigate = useNavigate();
     const [loan, setLoan] = useState({
         title: '',
@@ -52,7 +52,8 @@ const LoanAdd = () => {
 
             await api.createLoan(loanRequestDto);
 
-            navigate('/');
+            onSubmitSuccess();
+            onClose();
         } catch (error) {
             console.error('Error:', error);
             if (error.response.data) {
@@ -83,6 +84,7 @@ const LoanAdd = () => {
                                             value={loan.title}
                                             onChange={handleChange}
                                             className="form-control"
+                                            placeholder={"Title"}
                                         />
                                     </div>
                                 </div>
@@ -98,6 +100,7 @@ const LoanAdd = () => {
                                             value={loan.amount}
                                             onChange={handleChange}
                                             className="form-control"
+                                            placeholder={"Amount"}
                                         />
                                     </div>
                                 </div>
@@ -138,21 +141,17 @@ const LoanAdd = () => {
                                         </select>
                                     </div>
                                 </div>
-                                <div className="row justify-content-center text-center">
-                                    <div className="col-6">
-                                        <button type="submit" className="btn btn-block btn-success">
-                                            Submit
-                                        </button>
-                                    </div>
-                                    <div className="col-6">
-                                        <button
-                                            type="button"
-                                            onClick={() => navigate('/')}
-                                            className="btn btn-block btn-primary"
-                                        >
-                                            Go back
-                                        </button>
-                                    </div>
+                                <div className="text-center">
+                                    <button type="submit" className="btn btn-block btn-success margin-right-16">
+                                        Submit
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => onClose()}
+                                        className="btn btn-block btn-primary"
+                                    >
+                                        Close
+                                    </button>
                                 </div>
                             </form>
                         </div>
