@@ -3,7 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import validate from '../utils/validate';
 import api from "../../../services/api.js";
 
-const ChangePasswordForm = () => {
+const ChangePasswordForm = ({onClose}) => {
     const navigate = useNavigate();
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -47,7 +47,7 @@ const ChangePasswordForm = () => {
     };
 
     return (
-        <div className="container-fluid bg-body-tertiary">
+        <div className="container-fluid">
             <div className="row h-100 d-flex align-items-center justify-content-center">
                 <div className="col-sm-3">
                     <div className="card">
@@ -66,6 +66,7 @@ const ChangePasswordForm = () => {
                                         className="form-control"
                                         id="oldPassword"
                                         onChange={handleOldPasswordChange}
+                                        placeholder={"Enter your current password"}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -78,6 +79,7 @@ const ChangePasswordForm = () => {
                                         className="form-control"
                                         id="newPassword"
                                         onChange={handleNewPasswordChange}
+                                        placeholder={"Choose a new password"}
                                     />
                                 </div>
                                 <div className="mb-3">
@@ -90,25 +92,20 @@ const ChangePasswordForm = () => {
                                         className="form-control"
                                         id="repeatPassword"
                                         onChange={handleRepeatPasswordChange}
+                                        placeholder={"Repeat your new password"}
                                     />
                                 </div>
                                 <div className="text-center sign-button-container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <button type="submit" className="btn btn-block action-button">
-                                                Submit
-                                            </button>
-                                        </div>
-                                        <div className="col">
-                                            <button
-                                                type="button"
-                                                className="btn btn-block bg-primary"
-                                                onClick={() => navigate(-1)}
-                                            >
-                                                Go back
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <button type="submit" className="btn btn-block action-button margin-right-16">
+                                        Submit
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-block bg-primary"
+                                        onClick={onClose}
+                                    >
+                                        Close
+                                    </button>
                                 </div>
                             </form>
                         </div>

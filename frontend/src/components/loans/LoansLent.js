@@ -1,17 +1,25 @@
 import {useEffect, useState} from "react";
 import api from "../../services/api.js";
-import {useNavigate} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAdd, faRotateRight, faTrash} from "@fortawesome/free-solid-svg-icons";
 import Spinner from "../spinner/Spinner.js";
+import LoanAdd from "../add-form/LoanAdd";
 
 const LoansLent = () => {
     const [loans, setLoans] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    const [showLoanAddForm, setShowLoanAddForm] = useState(false);
 
-    const navigateToAddLoan = () => {
-        navigate('/loan/add');
+    const openLoanAddForm = () => {
+        setShowLoanAddForm(true);
+    };
+
+    const closeLoanAddForm = () => {
+        setShowLoanAddForm(false);
+    };
+
+    const handleSubmitSuccess = () => {
+        fetchLentLoans();
     };
 
     const fetchLentLoans = async () => {
@@ -50,7 +58,7 @@ const LoansLent = () => {
                 </button>
                 <button
                     className="btn btn-success margin-right-16"
-                    onClick={navigateToAddLoan}
+                    onClick={openLoanAddForm}
                 >
                     <FontAwesomeIcon icon={faAdd} className={"margin-right-4"}/>{' '}
                     Add
@@ -85,7 +93,7 @@ const LoansLent = () => {
                                         className="btn btn-danger"
                                         onClick={() => handleDeleteLoan(loan.id)}
                                     >
-                                        <FontAwesomeIcon icon={faTrash} />
+                                        <FontAwesomeIcon icon={faTrash}/>
                                     </button>
                                 </td>
                             </tr>
@@ -98,6 +106,12 @@ const LoansLent = () => {
                     </div>
                 )
             )}
+            <div className={`${showLoanAddForm ? "darken-background" : ""}`}>
+                {showLoanAddForm && <LoanAdd
+                    onClose={closeLoanAddForm}
+                    onSubmitSuccess={handleSubmitSuccess}/>
+                }
+            </div>
         </div>
     )
 }

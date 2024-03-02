@@ -222,3 +222,14 @@ h3 {
     font-size: 21px;
     font-weight: bold;
 }
+
+.darken-background {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    transition: background-color 0.18s ease;
+    z-index: 1;
+    top: 0;
+    left: 0;
+}
