@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.loans.base}")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"${frontend}"}, allowCredentials = "true")
 public class LoanSummaryController {
 
     private final LoanSummaryService loanSummaryService;

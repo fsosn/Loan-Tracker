@@ -12,7 +12,6 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.users.base}")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"${frontend}"}, allowCredentials = "true")
 public class UserController {
     private final UserService userService;
 
